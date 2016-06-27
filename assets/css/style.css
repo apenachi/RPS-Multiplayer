@@ -1,0 +1,50 @@
+
+		.op:hover {
+			background-color: #cfa;
+		}
+
+		.blink {
+				color: #fff;
+				-webkit-animation: change 10s infinite; /* Chrome, Safari, Opera */
+				animation: change 10s infinite;
+		}	
+		@-webkit-keyframes change {
+			from {
+				color: #fff;
+				background-color: #FF0066;
+			}
+			to {
+				color: red;
+				background-color: pink;
+			}
+		}
+		@-webkit-keyframes change {
+			from {
+				color: #fff;
+				background-color: #FF0066;
+			}
+			to {
+				color: red;
+				background-color: pink;
+			}
+		}
+		@keyframes change {
+			from {
+				color: #fff;
+				background-color: #FF0066;
+			}
+			to {
+				color: red;
+				background-color: pink;
+			}
+		}
+		@keyframes change {
+			from {
+				color: #fff;
+				background-color: #FF0066;
+			}
+			to {
+				color: red;
+				background-color: pink;
+			}
+		}
