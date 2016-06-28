@@ -1,0 +1,22 @@
+		.game {
+			background-color: #acd;
+			width: 33%;
+			height: 175px;
+			float: left;
+			margin: 5px 1px;
+			border: 1px solid #fff;
+			line-height: 35px;
+		}
+		.chatroom {
+			background-color: #fda;
+			height: 200px;
+			border: 1px solid #fff;
+		}
+		#chatform {
+			background: #ada;
+			height: 50px;
+		}
+		p {
+			margin: 0;
+			font-size: 25px;
+		}
