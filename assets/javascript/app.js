@@ -13,9 +13,8 @@
 		var	db = firebase.database();
 		var numberOfPlayers;
 		var thisPlayer= 0;
-		var playerID;
 		var toBeRemoved;
-		var session;;
+		var session;
 
 		// db.ref().child('players');		
 		// db.ref().child('chat');
@@ -45,47 +44,58 @@
 		function displayGameMessage(snap) {
 			console.log('called ');
 			var gameMessage = $('<h3>', {
-				text : 'Welcome ' + snap.val().name,
+				text : 'Hi "' + snap.val().name + '" you are player ' + snap.key,
 				attr : {'data-key' : snap.key},
 				class : snap.key,
 			});
-
+			$('#playerform').remove();
 			$('#game-message').append(gameMessage);
+			
+			$('#player' + snap.key).empty();
+			$('#player' + snap.key).append('<p>' + snap.val().name + '<p>');
+
+			var winslosses = $('<p>', {
+				text : 'Wins: ' + snap.val().wins + '   losses: ' + snap.val().losses,
+				css : {'font-size':'10px'},
+			}); 
+			var rps = $('<div>', {
+				css : {'width' : '100%', 'height' : '60%', 'background-color' : '#cea'},
+				class : 'rps' + snap.key,
+			})
+			rps.append('<p class =' + snap.key + '>' + 'ROCK' + '</p>');
+			rps.append('<p class =' + snap.key + '>' + 'PAPER' + '</p>');
+			rps.append('<p class =' + snap.key + '>' + 'SCISSORS' + '</p>');
+			$('#player' + snap.key).append(rps);
+			$('#player' + snap.key).append(winslosses);
 
 		}
-
+			// width: 33%;
+			// height: 175px;
 
 		db.ref().child('players').on('value', function(snapshot) {
 console.log('players.on.value');
 				numberOfPlayers = snapshot.numChildren();
-				playerID = numberOfPlayers + 1;
-			if (numberOfPlayers === 2 ) {
-			// 	console.log('yes');
-				$('#playerform').remove();
-			}
+				if (numberOfPlayers === 2 ) {
+				// 	console.log('yes');
+					// $('#playerform').remove();
+				}
 		});
 
 		db.ref().child('players').on('child_added', function(snapshot) {
 console.log('players.on.child_added');
 
 
-				if (snapshot.key === '1') {
-					var id = 'left';
-				} else {
-					var id = 'right'
-				};
-				var div = $('#' + id);
-				var h4 = $('<h4>', {
-					data: {key: snapshot.key},
-					attr: {'data-key' : snapshot.key},
-					text: snapshot.val().name,
-				});
-				div.append(h4);
-				div.append('<p class =' + snapshot.key + '>' + 'ROCK' + '</p>');
-				div.append('<p class =' + snapshot.key + '>' + 'PAPER' + '</p>');
-				div.append('<p class =' + snapshot.key + '>' + 'SCISSORS' + '</p>');
+				// var div = $('#player' + snapshot.key);
+				// var h4 = $('<h4>', {
+				// 	data: {key: snapshot.key},
+				// 	attr: {'data-key' : snapshot.key},
+				// 	text: snapshot.val().name,
+				// });
+				// div.append(h4);
+				// div.append('<p class =' + snapshot.key + '>' + 'ROCK' + '</p>');
+				// div.append('<p class =' + snapshot.key + '>' + 'PAPER' + '</p>');
+				// div.append('<p class =' + snapshot.key + '>' + 'SCISSORS' + '</p>');
 
-				
 		});
 
 		db.ref().child('chat').on('child_added', function(snapshot) {
@@ -131,37 +141,35 @@ console.log('players.on.child_added');
 			return false;
 		});
 
+		function checkSession() {
+				var sesstion;
+				db.ref().child('players').once('value', function(snapshot) {
+						console.log('once ' + snapshot.numChildren());
+						session = snapshot.numChildren() + 1;
+				});
+				return(session); 
+		}
+
 		$('#player-submit').on('click', function(){
 console.log('#player-submit.on.click');
 			var name = $('#player-input').val();
 			$('#player-input').val('');
 
-			db.ref().child('players').child(playerID).set({name: name, choice: '', losses : 0, wins: 0});
+			var thisSession = checkSession();
 
-		db.ref().child('players').once('value', function(snapshot) {
-				console.log('once ' + snapshot.numChildren());
-				session = snapshot.numChildren();
-		});
-		console.log('session: ' + session);
-		db.ref('players').child(session).once('value', function(snapshot) {
-			console.log(snapshot.val().name);
-			displayGameMessage(snapshot);
-		});
+			// Add Player
+			db.ref().child('players').child(thisSession).set({name: name, choice: '', losses : 0, wins: 0});
 
-
+			// Display Messages
+			console.log('session: ' + thisSession);
+			db.ref('players').child(session).once('value', function(snapshot) {
+				console.log(snapshot.val().name);
+				displayGameMessage(snapshot);
+			});
 
 			return false;
 		});
 
-	$(window).on('load', function(){
-console.log('window.on.load');		
-		db.ref().child('players').on('value', function(snapshot) {
-
-			numberOfPlayers = snapshot.numChildren();
-			// console.log('loading ' + numberOfPlayers);
-		});
-		
-	});
 
 	$(window).on('beforeunload', function(){
 	console.log('window.on.beforeunload');
