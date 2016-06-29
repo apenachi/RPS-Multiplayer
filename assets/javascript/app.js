@@ -12,10 +12,10 @@
 	// Create a variable to reference the database
 		var	db = firebase.database();
 		var numberOfPlayers;
+		var thisPlayer= 0;
 		var playerID;
-		var thisPlayer;
 		var toBeRemoved;
-		var whosTurn;
+		var session;;
 
 		// db.ref().child('players');		
 		// db.ref().child('chat');
@@ -42,58 +42,32 @@
 			});
 		};
 
-		var ok = true;
 		function displayGameMessage(snap) {
 			console.log('called ');
 			var gameMessage = $('<h3>', {
 				text : 'Welcome ' + snap.val().name,
 				attr : {'data-key' : snap.key},
-				id : snap.key,
+				class : snap.key,
 			});
-			$('#game-message').append(gameMessage);
-			$('#game-message > h3').hide();
-			if (snap.key === '1') {
-				$('#' + '1').show();
-				// $('#' + '2').hide();
-				
-			} else {
-				$('#' + '2').show();
-				// $('#' + '1').hide();
-			}
-			ok = false;
-			// console.log(name);
-		}
-		db.ref().child('players').on('value', function(snapshot) {
 
+			$('#game-message').append(gameMessage);
+
+		}
+
+
+		db.ref().child('players').on('value', function(snapshot) {
+console.log('players.on.value');
 				numberOfPlayers = snapshot.numChildren();
 				playerID = numberOfPlayers + 1;
-			console.log('players: ' + numberOfPlayers);
 			if (numberOfPlayers === 2 ) {
 			// 	console.log('yes');
 				$('#playerform').remove();
-				
-			// } else {
-			// 	console.log('no');
-			// 	playerID = numberOfPlayers + 1;
 			}
-			// if (getTurn() === 2) {
-			// 	$('.1').hide();
-			// } else {
-			// 	$('.2').hide();
-			// }
 		});
 
 		db.ref().child('players').on('child_added', function(snapshot) {
-			 console.log(snapshot.key);
-				if (snapshot.key === '1') {
-					console.log('this 1st Key: ' + snapshot.key);
-					// $('.2').hide();
-					// $('.1').show();
-				} else {
-					console.log('this 2nd Key: ' + snapshot.key);
-					// $('.1').hide();
-					// $('.2').show();
-				};
+console.log('players.on.child_added');
+
 
 				if (snapshot.key === '1') {
 					var id = 'left';
@@ -111,13 +85,14 @@
 				div.append('<p class =' + snapshot.key + '>' + 'PAPER' + '</p>');
 				div.append('<p class =' + snapshot.key + '>' + 'SCISSORS' + '</p>');
 
-				// displayGameMessage(snapshot);
+				
 		});
 
-		db.ref().child('chat').on('child_added', function(snapshot) {	
+		db.ref().child('chat').on('child_added', function(snapshot) {
+	console.log('chat.on.child_added');
 			toBeRemoved =  snapshot.key;
 			// Get Firebase Object Key
-			console.log('snapshot key: ' + snapshot.key);
+			// console.log('snapshot key: ' + snapshot.key);
 			var chat = snapshot.val();
 			var p = $('<p>' + chat.message + '</p>');
 			$('.chatroom').append(p);
@@ -125,19 +100,19 @@
 		});
 
 		$(document).on('click', '.1', function(){
+	console.log('document.on.click.1');
 			var rps = $(this).text();
-			console.log(rps);
 			db.ref().child('players').child(1).set({name: name, choice: rps, losses : 0, wins: 0});
 			$(this).css({
 				'font-size' : '35px',
 				'color' : 'red',
 				'display' : 'none',
 			});
-			$('.1').toggle();
+			// $('.1').toggle();
 		});
 
 		$(document).on('click', '.2', function(){
-
+	console.log('document.on.click.2');
 			var rps = $(this).text();
 			db.ref().child('players').child(2).set({name: name, choice: rps, losses : 0, wins: 0});
 			$(this).css({
@@ -145,7 +120,7 @@
 				'color' : 'red',
 				'display' : 'none',
 			});
-			$('.2').toggle();
+			// $('.2').toggle();
 		});
 
 		$('#message-submit').on('click', function(){
@@ -157,16 +132,39 @@
 		});
 
 		$('#player-submit').on('click', function(){
+console.log('#player-submit.on.click');
 			var name = $('#player-input').val();
 			$('#player-input').val('');
-			console.log('submit');
-			console.log('playerID: ' + playerID);
+
 			db.ref().child('players').child(playerID).set({name: name, choice: '', losses : 0, wins: 0});
+
+		db.ref().child('players').once('value', function(snapshot) {
+				console.log('once ' + snapshot.numChildren());
+				session = snapshot.numChildren();
+		});
+		console.log('session: ' + session);
+		db.ref('players').child(session).once('value', function(snapshot) {
+			console.log(snapshot.val().name);
+			displayGameMessage(snapshot);
+		});
+
+
+
 			return false;
 		});
 
+	$(window).on('load', function(){
+console.log('window.on.load');		
+		db.ref().child('players').on('value', function(snapshot) {
+
+			numberOfPlayers = snapshot.numChildren();
+			// console.log('loading ' + numberOfPlayers);
+		});
+		
+	});
+
 	$(window).on('beforeunload', function(){
-		console.log('bye');
+	console.log('window.on.beforeunload');
 		// db.ref().child('chat').child(toBeRemoved).remove();
 		// db.ref().child('players').child(thisPlayer).remove();
 			// db.ref().child('chat').once('value', function(snapshot) {
