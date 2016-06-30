@@ -35,14 +35,28 @@
 		};
 
 		function setTurn(n) {
-			db.ref().child('turn').once('value', function(snapshot) {
+			// db.ref().child('turn').once('value', function(snapshot) {
 				// whosTurn = whosTurn ?  2 : 1;
 				db.ref().child('turn').set({turn : n});
-			});
+			// });
 		};
 
+		function displayTopBottom(snap) {
+			$('#player' + snap.key).empty();
+			$('#player' + snap.key).append('<p>' + snap.val().name + '<p>');
+			var rps = $('<div>', {
+				css : {'width' : '100%', 'height' : '60%', 'background-color' : '#cea'},
+				class : 'rps' + snap.key,
+			})			
+			var winslosses = $('<p>', {
+				text : 'Wins: ' + snap.val().wins + '   losses: ' + snap.val().losses,
+				css : {'font-size':'10px'},
+			});
+			$('#player' + snap.key).append(rps);
+			$('#player' + snap.key).append(winslosses);
+		}
+
 		function displayGameMessage(snap) {
-			console.log('called ');
 			var gameMessage = $('<h3>', {
 				text : 'Hi "' + snap.val().name + '" you are player ' + snap.key,
 				attr : {'data-key' : snap.key},
@@ -51,40 +65,27 @@
 			$('#playerform').remove();
 			$('#game-message').append(gameMessage);
 			
-			$('#player' + snap.key).empty();
-			$('#player' + snap.key).append('<p>' + snap.val().name + '<p>');
-
-			var winslosses = $('<p>', {
-				text : 'Wins: ' + snap.val().wins + '   losses: ' + snap.val().losses,
-				css : {'font-size':'10px'},
-			}); 
-			var rps = $('<div>', {
-				css : {'width' : '100%', 'height' : '60%', 'background-color' : '#cea'},
-				class : 'rps' + snap.key,
-			})
-			rps.append('<p class =' + snap.key + '>' + 'ROCK' + '</p>');
-			rps.append('<p class =' + snap.key + '>' + 'PAPER' + '</p>');
-			rps.append('<p class =' + snap.key + '>' + 'SCISSORS' + '</p>');
-			$('#player' + snap.key).append(rps);
-			$('#player' + snap.key).append(winslosses);
+			// rps.append('<p class =' + snap.key + '>' + 'ROCK' + '</p>');
+			// rps.append('<p class =' + snap.key + '>' + 'PAPER' + '</p>');
+			// rps.append('<p class =' + snap.key + '>' + 'SCISSORS' + '</p>');
+			// $('#player' + snap.key).append(rps);
+			// $('#player' + snap.key).append(winslosses);
 
 		}
-			// width: 33%;
-			// height: 175px;
 
 		db.ref().child('players').on('value', function(snapshot) {
+
 console.log('players.on.value');
-				numberOfPlayers = snapshot.numChildren();
-				if (numberOfPlayers === 2 ) {
-				// 	console.log('yes');
-					// $('#playerform').remove();
-				}
+console.log('players.on.value.Children: ' + snapshot.numChildren());
+			if(snapshot.numChildren() ==='2') {
+				setTurn(1);
+			}
 		});
 
 		db.ref().child('players').on('child_added', function(snapshot) {
 console.log('players.on.child_added');
-
-
+				displayTopBottom(snapshot);
+				
 				// var div = $('#player' + snapshot.key);
 				// var h4 = $('<h4>', {
 				// 	data: {key: snapshot.key},
